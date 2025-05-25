@@ -17,10 +17,10 @@ import {
 import Link from 'next/link';
 import { 
   CalendarDays, CalendarPlus, CalendarCheck, Home, Sparkles,
-  Store, Package, UserCircle, MessageCircle // Added MessageCircle
+  UserCircle, MessageCircle 
 } from 'lucide-react';
 import { Toaster } from '@/components/ui/toaster';
-import { SheetTitle } from '@/components/ui/sheet'; // Keep for sidebar accessibility
+import { BottomNavigation } from './BottomNavigation'; // Added BottomNavigation import
 
 interface NavItem {
   href: string;
@@ -33,7 +33,7 @@ const mainNavItems: NavItem[] = [
   { href: '/events', label: 'All Events', icon: CalendarDays },
   { href: '/create', label: 'Create Event', icon: CalendarPlus },
   { href: '/calendar', label: 'My Calendar', icon: CalendarCheck },
-  { href: '/chat', label: 'Chat', icon: MessageCircle }, // Added Chat link
+  { href: '/chat', label: 'Chat', icon: MessageCircle }, 
   { href: '/profile', label: 'Profile', icon: UserCircle },
 ];
 
@@ -53,10 +53,6 @@ export function AppShell({ children }: { children: ReactNode }) {
         <SidebarHeader className="p-4">
           <Link href="/" className="flex items-center gap-2">
             <Sparkles className="w-8 h-8 text-sidebar-primary" />
-              {/* 
-                For mobile Sheet: The SheetTitle is now rendered directly within Sidebar.tsx for mobile 
-                to ensure correct context for Radix UI. This h1 is for desktop.
-              */}
             <h1 className="text-2xl font-semibold text-sidebar-foreground">Eventide</h1>
           </Link>
         </SidebarHeader>
@@ -116,17 +112,19 @@ export function AppShell({ children }: { children: ReactNode }) {
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <header className="sticky top-0 z-10 flex h-16 items-center justify-between gap-4 border-b bg-background px-4 md:px-6">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-background px-4 md:px-6">
           <div className="flex items-center gap-2">
             <div className="md:hidden">
               <SidebarTrigger />
             </div>
           </div>
         </header>
-        <main className="flex-1 p-4 md:p-6 overflow-y-auto">
+        {/* Adjusted padding: pb-20 for mobile (h-16 nav + some space), md:pb-6 for desktop */}
+        <main className="flex-1 p-4 md:p-6 overflow-y-auto pb-20 md:pb-6">
           {children}
         </main>
         <Toaster />
+        <BottomNavigation /> {/* Added BottomNavigation */}
       </SidebarInset>
     </SidebarProvider>
   );
