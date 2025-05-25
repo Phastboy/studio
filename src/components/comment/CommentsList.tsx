@@ -5,6 +5,7 @@ import type { Comment } from '@/types/comment';
 import { useCommentData } from '@/hooks/useCommentData';
 import { CommentCard } from './CommentCard';
 import { useMemo } from 'react';
+import { cn } from '@/lib/utils'; // Added import for cn
 
 interface CommentsListProps {
   postId: string;
@@ -41,3 +42,4 @@ export function CommentsList({ postId, parentId = null, isReplyList = false }: C
     </div>
   );
 }
+
