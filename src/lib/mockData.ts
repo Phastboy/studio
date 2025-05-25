@@ -3,6 +3,7 @@ import type { Event, EventLink } from '@/types/event';
 import type { Post } from '@/types/post';
 import type { User } from '@/types/user';
 import type { Comment } from '@/types/comment';
+import type { ChatMessage, ChatConversation } from '@/types/chat'; // New import
 import { format, subDays, addDays } from 'date-fns';
 
 // --- Mock Users (Conceptual) ---
@@ -24,6 +25,8 @@ export const mockUsers: User[] = [
   {
     id: 'user-3',
     displayName: 'Charlie Brown',
+    email: 'charlie@example.com',
+    avatarUrl: 'https://placehold.co/100x100.png?text=CB',
     createdAt: Date.now() - 1000 * 60 * 60 * 24 * 1, // 1 day ago
   },
 ];
@@ -176,5 +179,92 @@ export const mockComments: Comment[] = [
     author: mockUsers[0].displayName, // Alice
     content: 'Which workshop are you most excited about?',
     createdAt: Date.now() - 1000 * 60 * 60 * 1, // 1 hour ago
+  },
+];
+
+// --- Mock Chat Data ---
+const now = Date.now();
+const user1 = mockUsers[0]; // Alice
+const user2 = mockUsers[1]; // Bob
+const user3 = mockUsers[2]; // Charlie
+
+export const mockChatMessages: ChatMessage[] = [
+  {
+    id: 'chatmsg-1',
+    conversationId: 'convo-1-2', // Alice and Bob
+    senderId: user1.id,
+    text: 'Hey Bob, are you going to the Indie Music Fest?',
+    timestamp: now - 1000 * 60 * 10, // 10 mins ago
+  },
+  {
+    id: 'chatmsg-2',
+    conversationId: 'convo-1-2',
+    senderId: user2.id,
+    text: 'Hey Alice! Yeah, definitely. Already got my ticket!',
+    timestamp: now - 1000 * 60 * 9, // 9 mins ago
+  },
+  {
+    id: 'chatmsg-3',
+    conversationId: 'convo-1-2',
+    senderId: user1.id,
+    text: 'Sweet! We should try to meet up.',
+    timestamp: now - 1000 * 60 * 8, // 8 mins ago
+  },
+  {
+    id: 'chatmsg-4',
+    conversationId: 'convo-1-3', // Alice and Charlie
+    senderId: user1.id,
+    text: 'Hi Charlie, how\'s it going?',
+    timestamp: now - 1000 * 60 * 60 * 2, // 2 hours ago
+  },
+  {
+    id: 'chatmsg-5',
+    conversationId: 'convo-1-3',
+    senderId: user3.id,
+    text: 'Hey Alice! Doing well, just busy with work. You?',
+    timestamp: now - 1000 * 60 * 60 * 1.5, // 1.5 hours ago
+  },
+  {
+    id: 'chatmsg-6',
+    conversationId: 'convo-2-3', // Bob and Charlie
+    senderId: user2.id,
+    text: 'Charlie, did you see the new tools at the hardware store?',
+    timestamp: now - 1000 * 60 * 30, // 30 mins ago
+  },
+];
+
+export const mockChatConversations: ChatConversation[] = [
+  {
+    id: 'convo-1-2', // Between Alice (user-1) and Bob (user-2)
+    participantIds: [user1.id, user2.id],
+    participants: [
+      { id: user1.id, displayName: user1.displayName, avatarUrl: user1.avatarUrl },
+      { id: user2.id, displayName: user2.displayName, avatarUrl: user2.avatarUrl },
+    ],
+    lastMessage: mockChatMessages[2], // "Sweet! We should try to meet up."
+    lastMessageAt: mockChatMessages[2].timestamp,
+    createdAt: now - 1000 * 60 * 15, // 15 mins ago
+  },
+  {
+    id: 'convo-1-3', // Between Alice (user-1) and Charlie (user-3)
+    participantIds: [user1.id, user3.id],
+    participants: [
+      { id: user1.id, displayName: user1.displayName, avatarUrl: user1.avatarUrl },
+      { id: user3.id, displayName: user3.displayName, avatarUrl: user3.avatarUrl },
+    ],
+    lastMessage: mockChatMessages[4], // "Hey Alice! Doing well, just busy with work. You?"
+    lastMessageAt: mockChatMessages[4].timestamp,
+    createdAt: now - 1000 * 60 * 60 * 3, // 3 hours ago
+  },
+  {
+    id: 'convo-2-3', // Between Bob (user-2) and Charlie (user-3)
+    participantIds: [user2.id, user3.id],
+    participants: [
+      { id: user2.id, displayName: user2.displayName, avatarUrl: user2.avatarUrl },
+      { id: user3.id, displayName: user3.displayName, avatarUrl: user3.avatarUrl },
+    ],
+    lastMessage: mockChatMessages[5],
+    lastMessageAt: mockChatMessages[5].timestamp,
+    createdAt: now - 1000 * 60 * 45, // 45 mins ago
   },
 ];
