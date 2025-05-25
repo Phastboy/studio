@@ -14,11 +14,10 @@ import {
   SidebarSeparator,
   SidebarGroupLabel,
 } from '@/components/ui/sidebar';
-// SheetTitle is removed from here; it will be handled in sidebar.tsx for mobile.
 import Link from 'next/link';
 import { 
   CalendarDays, CalendarPlus, CalendarCheck, Home, Sparkles,
-  Package, Store 
+  Package, Store, UserCircle // Added UserCircle
 } from 'lucide-react';
 import { Toaster } from '@/components/ui/toaster';
 
@@ -33,6 +32,7 @@ const mainNavItems: NavItem[] = [
   { href: '/events', label: 'All Events', icon: CalendarDays },
   { href: '/create', label: 'Create Event', icon: CalendarPlus },
   { href: '/calendar', label: 'My Calendar', icon: CalendarCheck },
+  { href: '/profile', label: 'Profile', icon: UserCircle }, // Added Profile link
 ];
 
 const shopNavItems: NavItem[] = [
@@ -48,10 +48,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <SidebarProvider defaultOpen>
       <Sidebar>
+        {/* Visually hidden title for mobile sheet, handled by SheetTitle inside SheetContent */}
+        <div id="sidebar-title" className="sr-only">Eventide Navigation</div>
         <SidebarHeader className="p-4">
           <Link href="/" className="flex items-center gap-2">
             <Sparkles className="w-8 h-8 text-sidebar-primary" />
-            {/* This is the visual title for desktop. Mobile title is in sidebar.tsx */}
             <h1 className="text-2xl font-semibold text-sidebar-foreground">Eventide</h1>
           </Link>
         </SidebarHeader>
