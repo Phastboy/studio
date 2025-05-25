@@ -17,9 +17,10 @@ import {
 import Link from 'next/link';
 import { 
   CalendarDays, CalendarPlus, CalendarCheck, Home, Sparkles,
-  Package, Store, UserCircle // Added UserCircle
+  Store, Package, UserCircle, MessageCircle // Added MessageCircle
 } from 'lucide-react';
 import { Toaster } from '@/components/ui/toaster';
+import { SheetTitle } from '@/components/ui/sheet'; // Keep for sidebar accessibility
 
 interface NavItem {
   href: string;
@@ -32,15 +33,16 @@ const mainNavItems: NavItem[] = [
   { href: '/events', label: 'All Events', icon: CalendarDays },
   { href: '/create', label: 'Create Event', icon: CalendarPlus },
   { href: '/calendar', label: 'My Calendar', icon: CalendarCheck },
-  { href: '/profile', label: 'Profile', icon: UserCircle }, // Added Profile link
+  { href: '/chat', label: 'Chat', icon: MessageCircle }, // Added Chat link
+  { href: '/profile', label: 'Profile', icon: UserCircle },
 ];
 
 const shopNavItems: NavItem[] = [
-  // E-commerce items rolled back
+  // E-commerce items are currently rolled back
 ];
 
 const adminNavItems: NavItem[] = [
-  // Admin items rolled back
+   // Admin items are currently rolled back
 ];
 
 
@@ -48,11 +50,13 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <SidebarProvider defaultOpen>
       <Sidebar>
-        {/* Visually hidden title for mobile sheet, handled by SheetTitle inside SheetContent */}
-        <div id="sidebar-title" className="sr-only">Eventide Navigation</div>
         <SidebarHeader className="p-4">
           <Link href="/" className="flex items-center gap-2">
             <Sparkles className="w-8 h-8 text-sidebar-primary" />
+              {/* 
+                For mobile Sheet: The SheetTitle is now rendered directly within Sidebar.tsx for mobile 
+                to ensure correct context for Radix UI. This h1 is for desktop.
+              */}
             <h1 className="text-2xl font-semibold text-sidebar-foreground">Eventide</h1>
           </Link>
         </SidebarHeader>
