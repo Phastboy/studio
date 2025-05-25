@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+
+import { useState, useEffect, useCallback, useMemo } from 'react'; // Added React.useMemo
 import type { Event } from '@/types/event';
 import {
   getEventsFromStorage,
@@ -75,17 +76,4 @@ export function useEventData() {
     savedEvents,
     isLoading,
   };
-}
-
-// A simple useMemo for client components
-function useMemo<T>(factory: () => T, deps: any[]): T {
-  // This is a very simplified version of useMemo for client components
-  // Real useMemo is a hook and needs React context
-  // For this scaffold, it's more illustrative of intent
-  const [value, setValue] = useState(factory());
-  useEffect(() => {
-    setValue(factory());
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps);
-  return value;
 }

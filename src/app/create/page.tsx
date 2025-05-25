@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -27,7 +28,7 @@ export default function CreateEventPage() {
         title: 'Event Created!',
         description: `"${data.name}" has been successfully created.`,
       });
-      router.push('/'); // Redirect to all events page
+      router.push('/events'); // Redirect to all events page
     } catch (error) {
       console.error("Failed to create event:", error);
       toast({

@@ -1,3 +1,4 @@
+
 import type { ReactNode } from 'react';
 import {
   SidebarProvider,
@@ -10,7 +11,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { CalendarDays, CalendarPlus, CalendarCheck, Home, Settings, Sparkles } from 'lucide-react';
+import { CalendarDays, CalendarPlus, CalendarCheck, Home, Settings, Sparkles, MessageSquare } from 'lucide-react';
 import { Toaster } from '@/components/ui/toaster';
 
 interface NavItem {
@@ -20,7 +21,8 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { href: '/', label: 'All Events', icon: CalendarDays },
+  { href: '/', label: 'Home Feed', icon: Home },
+  { href: '/events', label: 'All Events', icon: CalendarDays },
   { href: '/create', label: 'Create Event', icon: CalendarPlus },
   { href: '/calendar', label: 'My Calendar', icon: CalendarCheck },
 ];

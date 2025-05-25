@@ -1,3 +1,4 @@
+
 'use client';
 
 import { EventCard } from '@/components/event/EventCard';
@@ -76,7 +77,7 @@ export default function MyCalendarPage() {
             You haven't saved any events yet. Explore events and add them to your calendar!
           </p>
           <Button asChild>
-            <Link href="/">Explore Events</Link>
+            <Link href="/events">Explore Events</Link>
           </Button>
         </div>
       )}
