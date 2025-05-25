@@ -21,7 +21,6 @@ import {
   ShoppingBag, ShoppingCart, Package, ClipboardList, Users 
 } from 'lucide-react';
 import { Toaster } from '@/components/ui/toaster';
-import { AuthButton } from '@/components/auth/AuthButton'; // <-- Import AuthButton
 
 interface NavItem {
   href: string;
@@ -120,7 +119,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
             {/* Placeholder for potential breadcrumbs or page title can go here */}
           </div>
-          <AuthButton /> {/* <-- Add AuthButton to the right */}
+          {/* AuthButton was here */}
         </header>
         <main className="flex-1 p-4 md:p-6 overflow-y-auto">
           {children}
