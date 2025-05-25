@@ -6,10 +6,10 @@ import { useEventData } from '@/hooks/useEventData';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { CalendarHeart, AlertTriangle, Loader2, Trash2 } from 'lucide-react';
+import { CalendarHeart, AlertTriangle, Loader2 } from 'lucide-react';
 
 export default function MyCalendarPage() {
-  const { savedEvents, isLoading, toggleSaveEvent, isEventSaved, deleteEvent } = useEventData();
+  const { savedEvents, isLoading, toggleSaveEvent, deleteEvent } = useEventData(); // Removed isEventSaved as it's implied
   const { toast } = useToast();
 
   const handleUnsaveEvent = (eventId: string) => {
@@ -23,9 +23,9 @@ export default function MyCalendarPage() {
     });
   };
 
-   // If you want a hard delete from calendar page:
-  const handleDeleteEventFromCalendar = (eventId: string) => {
-    const event = savedEvents.find(e => e.id === eventId);
+   // This function is for hard deletion, kept for potential future use if needed elsewhere or via a different UI element
+  const handleDeleteEventFromSystem = (eventId: string) => {
+    const event = savedEvents.find(e => e.id === eventId); // It might be more robust to fetch from allEvents
     if (!event) return;
 
     if (confirm(`Are you sure you want to permanently delete "${event.name}" from all records? This action cannot be undone.`)) {
@@ -64,8 +64,9 @@ export default function MyCalendarPage() {
               event={event}
               isSaved={true} // All events here are saved
               onToggleSave={handleUnsaveEvent} // This will act as "Remove from Calendar"
-              onDelete={handleDeleteEventFromCalendar} // Optional: if you want hard delete
-              showDelete={true} // Show the remove/delete button
+              isCalendarContext={true} // Indicate this is the calendar page context
+              showDelete={false} // Do not show the hard delete button on this page
+              // onDelete={handleDeleteEventFromSystem} // Hard delete is removed from card on this page
             />
           ))}
         </div>

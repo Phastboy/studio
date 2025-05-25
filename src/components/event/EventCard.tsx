@@ -1,9 +1,13 @@
+
 'use client';
 
 import type { Event } from '@/types/event';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CalendarIcon, MapPinIcon, ClockIcon, TagIcon, LinkIcon, BookmarkPlus, BookmarkCheck, Trash2 } from 'lucide-react';
+import { 
+  CalendarIcon, MapPinIcon, ClockIcon, TagIcon, LinkIcon, 
+  BookmarkPlus, BookmarkCheck, Trash2, BookmarkMinus 
+} from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import Image from 'next/image';
 
@@ -12,13 +16,37 @@ interface EventCardProps {
   isSaved?: boolean;
   onToggleSave?: (eventId: string) => void;
   onDelete?: (eventId: string) => void;
-  showDelete?: boolean; // To show delete button on calendar page
+  showDelete?: boolean; // To show hard delete button
+  isCalendarContext?: boolean; // To adjust button text/icon for "My Calendar" page
 }
 
-export function EventCard({ event, isSaved, onToggleSave, onDelete, showDelete = false }: EventCardProps) {
+export function EventCard({ 
+  event, 
+  isSaved, 
+  onToggleSave, 
+  onDelete, 
+  showDelete = false, 
+  isCalendarContext = false 
+}: EventCardProps) {
   const { name, date, time, location, category, description, links, id } = event;
 
   const formattedDate = format(parseISO(date), 'EEE, MMM d, yyyy');
+
+  let saveButtonIcon: React.ReactNode;
+  let saveButtonText: string;
+
+  if (isSaved) {
+    if (isCalendarContext) {
+      saveButtonIcon = <BookmarkMinus className="mr-2 h-4 w-4" />;
+      saveButtonText = 'Remove from Calendar';
+    } else {
+      saveButtonIcon = <BookmarkCheck className="mr-2 h-4 w-4" />;
+      saveButtonText = 'Saved to Calendar';
+    }
+  } else {
+    saveButtonIcon = <BookmarkPlus className="mr-2 h-4 w-4" />;
+    saveButtonText = 'Save to Calendar';
+  }
 
   return (
     <Card className="flex flex-col h-full shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
@@ -75,14 +103,18 @@ export function EventCard({ event, isSaved, onToggleSave, onDelete, showDelete =
       </CardContent>
       <CardFooter className="flex justify-between items-center border-t pt-4">
         {onToggleSave && (
-          <Button variant={isSaved ? "secondary" : "default"} onClick={() => onToggleSave(id)} className="w-full">
-            {isSaved ? <BookmarkCheck className="mr-2 h-4 w-4" /> : <BookmarkPlus className="mr-2 h-4 w-4" />}
-            {isSaved ? 'Saved to Calendar' : 'Save to Calendar'}
+          <Button 
+            variant={isSaved ? (isCalendarContext ? "outline" : "secondary") : "default"} 
+            onClick={() => onToggleSave(id)} 
+            className="w-full"
+          >
+            {saveButtonIcon}
+            {saveButtonText}
           </Button>
         )}
-         {showDelete && onDelete && (
+         {showDelete && onDelete && !isCalendarContext && ( // Only show hard delete if not in calendar context
           <Button variant="destructive" onClick={() => onDelete(id)} size="sm" className="ml-2">
-            <Trash2 className="mr-2 h-4 w-4" /> Remove
+            <Trash2 className="mr-2 h-4 w-4" /> Delete
           </Button>
         )}
       </CardFooter>
