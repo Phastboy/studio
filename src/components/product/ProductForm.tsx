@@ -16,8 +16,10 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
 import type { Product } from '@/types/product';
+import { useShopData } from '@/hooks/useShopData'; // Import useShopData
 
 const productFormSchema = z.object({
   name: z.string().min(3, 'Product name must be at least 3 characters.'),
@@ -25,6 +27,7 @@ const productFormSchema = z.object({
   price: z.coerce.number().min(0.01, 'Price must be positive.'),
   stockQuantity: z.coerce.number().int().min(0, 'Stock quantity cannot be negative.'),
   imageUrl: z.string().url('Image URL must be a valid URL.').optional().or(z.literal('')),
+  shopId: z.string().min(1, 'Shop assignment is required.'),
 });
 
 export type ProductFormValues = z.infer<typeof productFormSchema>;
@@ -42,6 +45,8 @@ export function ProductForm({
   isLoading = false, 
   submitButtonText = initialData ? "Update Product" : "Create Product" 
 }: ProductFormProps) {
+  const { shops, isLoading: isLoadingShops } = useShopData(); // Get shops for dropdown
+
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
     defaultValues: {
@@ -50,6 +55,7 @@ export function ProductForm({
       price: initialData?.price || 0,
       stockQuantity: initialData?.stockQuantity || 0,
       imageUrl: initialData?.imageUrl || '',
+      shopId: initialData?.shopId || '',
     },
   });
   
@@ -60,6 +66,36 @@ export function ProductForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onFormSubmit)} className="space-y-8">
+        <FormField
+          control={form.control}
+          name="shopId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Shop</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoadingShops || shops.length === 0}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder={isLoadingShops ? "Loading shops..." : "Select a shop for this product"} />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {shops.length === 0 && !isLoadingShops ? (
+                    <SelectItem value="no-shops" disabled>No shops available. Create a shop first.</SelectItem>
+                  ) : (
+                    shops.map(shop => (
+                      <SelectItem key={shop.id} value={shop.id}>{shop.name}</SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
+              <FormDescription>
+                Assign this product to one of your shops.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <FormField
           control={form.control}
           name="name"
@@ -130,7 +166,7 @@ export function ProductForm({
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={isLoading} className="w-full md:w-auto">
+        <Button type="submit" disabled={isLoading || isLoadingShops} className="w-full md:w-auto">
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           {submitButtonText}
         </Button>

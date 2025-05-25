@@ -21,6 +21,11 @@ export function useProductData() {
   }, []);
 
   const addProduct = useCallback((newProductData: Omit<Product, 'id' | 'createdAt'>) => {
+    if (!newProductData.shopId) {
+      // This case should ideally be prevented by form validation
+      console.error("Shop ID is required to add a product.");
+      throw new Error("Shop ID is required.");
+    }
     const productWithId: Product = {
       ...newProductData,
       id: crypto.randomUUID(),
@@ -32,6 +37,10 @@ export function useProductData() {
   }, []);
 
   const updateProduct = useCallback((updatedProduct: Product) => {
+     if (!updatedProduct.shopId) {
+      console.error("Shop ID is required to update a product.");
+      throw new Error("Shop ID is required.");
+    }
     const updatedProducts = updateProductInStorage(updatedProduct);
     setProducts(updatedProducts);
   }, []);

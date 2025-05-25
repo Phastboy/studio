@@ -1,3 +1,4 @@
+
 import type { ReactNode } from 'react';
 import {
   SidebarProvider,
@@ -18,9 +19,10 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { 
   CalendarDays, CalendarPlus, CalendarCheck, Home, Settings, Sparkles, MessageSquare,
-  ShoppingBag, ShoppingCart, Package, ClipboardList, Users 
+  ShoppingBag, ShoppingCart, Package, ClipboardList, Users, Store
 } from 'lucide-react';
 import { Toaster } from '@/components/ui/toaster';
+// import { AuthButton } from '@/components/auth/AuthButton'; // Auth rolled back
 
 interface NavItem {
   href: string;
@@ -41,6 +43,7 @@ const shopNavItems: NavItem[] = [
 ];
 
 const adminNavItems: NavItem[] = [
+  { href: '/admin/shops', label: 'Manage Shops', icon: Store },
   { href: '/admin/products', label: 'Inventory', icon: Package },
   { href: '/admin/orders', label: 'Orders', icon: ClipboardList },
   // { href: '/admin/users', label: 'Users', icon: Users }, // Example for future
@@ -119,7 +122,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
             {/* Placeholder for potential breadcrumbs or page title can go here */}
           </div>
-          {/* AuthButton was here */}
+          {/* <AuthButton /> */} {/* Auth rolled back */}
         </header>
         <main className="flex-1 p-4 md:p-6 overflow-y-auto">
           {children}

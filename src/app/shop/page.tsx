@@ -2,15 +2,17 @@
 'use client';
 
 import { useProductData } from '@/hooks/useProductData';
+import { useShopData } from '@/hooks/useShopData'; // Import useShopData
 import { useCart } from '@/hooks/useCart';
 import { ShopProductCard } from '@/components/product/ShopProductCard';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ShoppingBag, ShoppingCart as CartIcon, AlertTriangle, Loader2 } from 'lucide-react';
+import { ShoppingBag, ShoppingCart as CartIcon, AlertTriangle, Loader2, Store as StoreIcon } from 'lucide-react';
 
 export default function ShopPage() {
   const { products, isLoading: isLoadingProducts, getProductById } = useProductData();
+  const { shops, isLoading: isLoadingShops, getShopById } = useShopData(); // Get shop data
   const { addItem, items: cartItems } = useCart();
   const { toast } = useToast();
 
@@ -37,14 +39,34 @@ export default function ShopPage() {
     });
   };
 
-  if (isLoadingProducts) {
+  if (isLoadingProducts || isLoadingShops) {
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-theme(spacing.16))]">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="ml-4 text-lg text-muted-foreground">Loading products...</p>
+        <p className="ml-4 text-lg text-muted-foreground">Loading products and shops...</p>
       </div>
     );
   }
+  
+  if (shops.length === 0 && !isLoadingShops) {
+     return (
+      <div className="container mx-auto py-8">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-foreground flex items-center">
+            <ShoppingBag className="mr-3 h-8 w-8 text-primary" /> Eventide Shop
+          </h1>
+        </div>
+        <div className="text-center py-12 bg-card rounded-lg shadow p-8">
+          <StoreIcon className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+          <h2 className="text-xl font-semibold text-foreground">No Shops Available</h2>
+          <p className="text-muted-foreground mt-2">
+            There are no shops set up yet. Please check back later or contact an administrator.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
 
   return (
     <div className="container mx-auto py-8">
@@ -65,10 +87,12 @@ export default function ShopPage() {
             const cartItem = cartItems.find(item => item.productId === product.id);
             const quantityInCart = cartItem ? cartItem.quantity : 0;
             const isEffectivelyOutOfStock = product.stockQuantity <= quantityInCart;
+            const shop = getShopById(product.shopId);
             return (
                 <ShopProductCard
                 key={product.id}
                 product={product}
+                shop={shop}
                 onAddToCart={handleAddToCart}
                 isOutOfStock={isEffectivelyOutOfStock}
                 />
@@ -78,7 +102,7 @@ export default function ShopPage() {
       ) : (
         <div className="text-center py-12 bg-card rounded-lg shadow p-8">
           <AlertTriangle className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-          <h2 className="text-xl font-semibold text-foreground">Shop is Empty</h2>
+          <h2 className="text-xl font-semibold text-foreground">No Products in Shops</h2>
           <p className="text-muted-foreground mt-2">
             There are no products available at the moment. Check back soon!
           </p>
@@ -87,4 +111,3 @@ export default function ShopPage() {
     </div>
   );
 }
-

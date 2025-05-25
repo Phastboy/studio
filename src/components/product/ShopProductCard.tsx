@@ -2,18 +2,20 @@
 'use client';
 
 import type { Product } from '@/types/product';
+import type { Shop } from '@/types/shop'; // Import Shop type
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, DollarSign, Info, Layers } from 'lucide-react';
+import { ShoppingCart, DollarSign, Info, Layers, Store } from 'lucide-react';
 import Image from 'next/image';
 
 interface ShopProductCardProps {
   product: Product;
+  shop?: Shop; // Make shop optional, can be fetched separately if needed
   onAddToCart: (productId: string) => void;
   isOutOfStock?: boolean;
 }
 
-export function ShopProductCard({ product, onAddToCart, isOutOfStock = false }: ShopProductCardProps) {
+export function ShopProductCard({ product, shop, onAddToCart, isOutOfStock = false }: ShopProductCardProps) {
   const { name, description, price, stockQuantity, imageUrl, id } = product;
 
   return (
@@ -34,6 +36,12 @@ export function ShopProductCard({ product, onAddToCart, isOutOfStock = false }: 
       </div>
       <CardHeader>
         <CardTitle className="text-xl font-semibold">{name}</CardTitle>
+        {shop && (
+          <div className="flex items-center text-xs text-muted-foreground pt-0.5">
+            <Store className="mr-1 h-3.5 w-3.5" />
+            <span>Sold by: {shop.name}</span>
+          </div>
+        )}
         <div className="flex items-center text-primary pt-1">
           <DollarSign className="mr-1 h-5 w-5" />
           <span className="text-lg font-bold">${price.toFixed(2)}</span>
