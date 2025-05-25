@@ -39,10 +39,11 @@ export function useShopData() {
     const updatedShops = deleteShopFromStorage(shopId);
     setShops(updatedShops);
   }, []);
-  
+
   const getShopById = useCallback((shopId: string): Shop | undefined => {
     return shops.find(s => s.id === shopId);
   }, [shops]);
+
 
   return {
     shops,

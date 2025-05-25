@@ -1,69 +1,77 @@
+import type { ReactNode } from 'react';
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarHeader,
+  SidebarContent,
+  SidebarFooter,
+  SidebarInset,
+  SidebarTrigger,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+} from '@/components/ui/sidebar';
+import Link from 'next/link';
+import { 
+  CalendarDays, CalendarPlus, CalendarCheck, Home, Sparkles
+} from 'lucide-react';
+import { Toaster } from '@/components/ui/toaster';
 
-'use client';
-
-import type { Product } from '@/types/product';
-import type { Shop } from '@/types/shop'; // Import Shop type
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ShoppingCart, DollarSign, Info, Layers, Store } from 'lucide-react';
-import Image from 'next/image';
-
-interface ShopProductCardProps {
-  product: Product;
-  shop?: Shop; // Make shop optional, can be fetched separately if needed
-  onAddToCart: (productId: string) => void;
-  isOutOfStock?: boolean;
+interface NavItem {
+  href: string;
+  label: string;
+  icon: React.ElementType;
 }
 
-export function ShopProductCard({ product, shop, onAddToCart, isOutOfStock = false }: ShopProductCardProps) {
-  const { name, description, price, stockQuantity, imageUrl, id } = product;
+const mainNavItems: NavItem[] = [
+  { href: '/', label: 'Home Feed', icon: Home },
+  { href: '/events', label: 'All Events', icon: CalendarDays },
+  { href: '/create', label: 'Create Event', icon: CalendarPlus },
+  { href: '/calendar', label: 'My Calendar', icon: CalendarCheck },
+];
 
+export function AppShell({ children }: { children: ReactNode }) {
   return (
-    <Card className="flex flex-col h-full shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-      <div className="relative w-full h-60">
-        <Image
-          src={imageUrl || `https://placehold.co/400x400.png?text=${encodeURIComponent(name)}`}
-          alt={name}
-          layout="fill"
-          objectFit="cover"
-          data-ai-hint="product item"
-        />
-        {isOutOfStock && (
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-            <span className="text-white text-lg font-semibold bg-destructive p-2 rounded">Out of Stock</span>
+    <SidebarProvider defaultOpen>
+      <Sidebar>
+        <SidebarHeader className="p-4">
+          <Link href="/" className="flex items-center gap-2">
+            <Sparkles className="w-8 h-8 text-sidebar-primary" />
+            {/* The h1 now has an ID for aria-labelledby in sidebar.tsx's SheetContent */}
+            <h1 id="sidebar-title" className="text-2xl font-semibold text-sidebar-foreground">Eventide</h1>
+          </Link>
+        </SidebarHeader>
+        <SidebarContent className="p-2">
+          <SidebarMenu>
+            {mainNavItems.map((item) => (
+              <SidebarMenuItem key={item.label}>
+                <SidebarMenuButton asChild className="justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
+                  <Link href={item.href} className="flex items-center">
+                    <item.icon className="h-5 w-5 mr-3" />
+                    {item.label}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarContent>
+        <SidebarFooter className="p-4 mt-auto border-t border-sidebar-border">
+          {/* Optional: Footer content like settings or user profile */}
+        </SidebarFooter>
+      </Sidebar>
+      <SidebarInset>
+        <header className="sticky top-0 z-10 flex h-16 items-center justify-between gap-4 border-b bg-background px-4 md:px-6">
+          <div className="flex items-center gap-2">
+            <div className="md:hidden">
+              <SidebarTrigger />
+            </div>
           </div>
-        )}
-      </div>
-      <CardHeader>
-        <CardTitle className="text-xl font-semibold">{name}</CardTitle>
-        {shop && (
-          <div className="flex items-center text-xs text-muted-foreground pt-0.5">
-            <Store className="mr-1 h-3.5 w-3.5" />
-            <span>Sold by: {shop.name}</span>
-          </div>
-        )}
-        <div className="flex items-center text-primary pt-1">
-          <DollarSign className="mr-1 h-5 w-5" />
-          <span className="text-lg font-bold">${price.toFixed(2)}</span>
-        </div>
-      </CardHeader>
-      <CardContent className="flex-grow space-y-2">
-        <div className="flex items-center text-sm text-muted-foreground">
-          <Layers className="mr-1.5 h-4 w-4" />
-          <span>Stock: {stockQuantity > 0 ? stockQuantity : 'Unavailable'}</span>
-        </div>
-        <CardDescription className="text-sm line-clamp-3">{description}</CardDescription>
-      </CardContent>
-      <CardFooter className="border-t pt-4">
-        <Button 
-          onClick={() => onAddToCart(id)} 
-          className="w-full"
-          disabled={isOutOfStock || stockQuantity <= 0}
-        >
-          <ShoppingCart className="mr-2 h-4 w-4" />
-          {isOutOfStock || stockQuantity <= 0 ? 'Out of Stock' : 'Add to Cart'}
-        </Button>
-      </CardFooter>
-    </Card>
+        </header>
+        <main className="flex-1 p-4 md:p-6 overflow-y-auto">
+          {children}
+        </main>
+        <Toaster />
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

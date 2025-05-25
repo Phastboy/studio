@@ -1,113 +1,77 @@
-
-'use client';
-
-import { useProductData } from '@/hooks/useProductData';
-import { useShopData } from '@/hooks/useShopData'; // Import useShopData
-import { useCart } from '@/hooks/useCart';
-import { ShopProductCard } from '@/components/product/ShopProductCard';
-import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
+import type { ReactNode } from 'react';
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarHeader,
+  SidebarContent,
+  SidebarFooter,
+  SidebarInset,
+  SidebarTrigger,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+} from '@/components/ui/sidebar';
 import Link from 'next/link';
-import { ShoppingBag, ShoppingCart as CartIcon, AlertTriangle, Loader2, Store as StoreIcon } from 'lucide-react';
+import { 
+  CalendarDays, CalendarPlus, CalendarCheck, Home, Sparkles
+} from 'lucide-react';
+import { Toaster } from '@/components/ui/toaster';
 
-export default function ShopPage() {
-  const { products, isLoading: isLoadingProducts, getProductById } = useProductData();
-  const { shops, isLoading: isLoadingShops, getShopById } = useShopData(); // Get shop data
-  const { addItem, items: cartItems } = useCart();
-  const { toast } = useToast();
+interface NavItem {
+  href: string;
+  label: string;
+  icon: React.ElementType;
+}
 
-  const handleAddToCart = (productId: string) => {
-    const product = getProductById(productId);
-    if (!product) return;
+const mainNavItems: NavItem[] = [
+  { href: '/', label: 'Home Feed', icon: Home },
+  { href: '/events', label: 'All Events', icon: CalendarDays },
+  { href: '/create', label: 'Create Event', icon: CalendarPlus },
+  { href: '/calendar', label: 'My Calendar', icon: CalendarCheck },
+];
 
-    const cartItem = cartItems.find(item => item.productId === productId);
-    const quantityInCart = cartItem ? cartItem.quantity : 0;
-
-    if (product.stockQuantity <= quantityInCart) {
-        toast({
-            title: 'Out of Stock',
-            description: `Cannot add more "${product.name}". All available stock is in your cart or already purchased.`,
-            variant: 'destructive',
-        });
-        return;
-    }
-
-    addItem(productId, 1);
-    toast({
-      title: 'Added to Cart!',
-      description: `"${product.name}" has been added to your cart.`,
-    });
-  };
-
-  if (isLoadingProducts || isLoadingShops) {
-    return (
-      <div className="flex justify-center items-center min-h-[calc(100vh-theme(spacing.16))]">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="ml-4 text-lg text-muted-foreground">Loading products and shops...</p>
-      </div>
-    );
-  }
-  
-  if (shops.length === 0 && !isLoadingShops) {
-     return (
-      <div className="container mx-auto py-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-foreground flex items-center">
-            <ShoppingBag className="mr-3 h-8 w-8 text-primary" /> Eventide Shop
-          </h1>
-        </div>
-        <div className="text-center py-12 bg-card rounded-lg shadow p-8">
-          <StoreIcon className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-          <h2 className="text-xl font-semibold text-foreground">No Shops Available</h2>
-          <p className="text-muted-foreground mt-2">
-            There are no shops set up yet. Please check back later or contact an administrator.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-
+export function AppShell({ children }: { children: ReactNode }) {
   return (
-    <div className="container mx-auto py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-foreground flex items-center">
-          <ShoppingBag className="mr-3 h-8 w-8 text-primary" /> Eventide Shop
-        </h1>
-        <Button asChild variant="outline">
-          <Link href="/cart">
-            <CartIcon className="mr-2 h-5 w-5" /> View Cart ({cartItems.reduce((acc, item) => acc + item.quantity, 0)})
+    <SidebarProvider defaultOpen>
+      <Sidebar>
+        <SidebarHeader className="p-4">
+          <Link href="/" className="flex items-center gap-2">
+            <Sparkles className="w-8 h-8 text-sidebar-primary" />
+            {/* The h1 now has an ID for aria-labelledby in sidebar.tsx's SheetContent */}
+            <h1 id="sidebar-title" className="text-2xl font-semibold text-sidebar-foreground">Eventide</h1>
           </Link>
-        </Button>
-      </div>
-
-      {products.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {products.map(product => {
-            const cartItem = cartItems.find(item => item.productId === product.id);
-            const quantityInCart = cartItem ? cartItem.quantity : 0;
-            const isEffectivelyOutOfStock = product.stockQuantity <= quantityInCart;
-            const shop = getShopById(product.shopId);
-            return (
-                <ShopProductCard
-                key={product.id}
-                product={product}
-                shop={shop}
-                onAddToCart={handleAddToCart}
-                isOutOfStock={isEffectivelyOutOfStock}
-                />
-            )
-          })}
-        </div>
-      ) : (
-        <div className="text-center py-12 bg-card rounded-lg shadow p-8">
-          <AlertTriangle className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-          <h2 className="text-xl font-semibold text-foreground">No Products in Shops</h2>
-          <p className="text-muted-foreground mt-2">
-            There are no products available at the moment. Check back soon!
-          </p>
-        </div>
-      )}
-    </div>
+        </SidebarHeader>
+        <SidebarContent className="p-2">
+          <SidebarMenu>
+            {mainNavItems.map((item) => (
+              <SidebarMenuItem key={item.label}>
+                <SidebarMenuButton asChild className="justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
+                  <Link href={item.href} className="flex items-center">
+                    <item.icon className="h-5 w-5 mr-3" />
+                    {item.label}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarContent>
+        <SidebarFooter className="p-4 mt-auto border-t border-sidebar-border">
+          {/* Optional: Footer content like settings or user profile */}
+        </SidebarFooter>
+      </Sidebar>
+      <SidebarInset>
+        <header className="sticky top-0 z-10 flex h-16 items-center justify-between gap-4 border-b bg-background px-4 md:px-6">
+          <div className="flex items-center gap-2">
+            <div className="md:hidden">
+              <SidebarTrigger />
+            </div>
+          </div>
+        </header>
+        <main className="flex-1 p-4 md:p-6 overflow-y-auto">
+          {children}
+        </main>
+        <Toaster />
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

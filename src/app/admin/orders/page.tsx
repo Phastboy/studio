@@ -1,70 +1,77 @@
+import type { ReactNode } from 'react';
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarHeader,
+  SidebarContent,
+  SidebarFooter,
+  SidebarInset,
+  SidebarTrigger,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+} from '@/components/ui/sidebar';
+import Link from 'next/link';
+import { 
+  CalendarDays, CalendarPlus, CalendarCheck, Home, Sparkles
+} from 'lucide-react';
+import { Toaster } from '@/components/ui/toaster';
 
-'use client';
+interface NavItem {
+  href: string;
+  label: string;
+  icon: React.ElementType;
+}
 
-import { useOrderData } from '@/hooks/useOrderData';
-import { OrderListItem } from '@/components/order/OrderListItem';
-import type { OrderStatus } from '@/types/order';
-import { useToast } from '@/hooks/use-toast';
-import { ClipboardList, AlertTriangle, Loader2 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+const mainNavItems: NavItem[] = [
+  { href: '/', label: 'Home Feed', icon: Home },
+  { href: '/events', label: 'All Events', icon: CalendarDays },
+  { href: '/create', label: 'Create Event', icon: CalendarPlus },
+  { href: '/calendar', label: 'My Calendar', icon: CalendarCheck },
+];
 
-
-export default function AdminOrdersPage() {
-  const { orders, updateOrderStatus, isLoading: isLoadingOrders } = useOrderData();
-  const { toast } = useToast();
-
-  const handleUpdateStatus = (orderId: string, newStatus: OrderStatus) => {
-    try {
-      updateOrderStatus(orderId, newStatus);
-      toast({
-        title: 'Order Status Updated',
-        description: `Order ${orderId.substring(0,8)} status changed to ${newStatus}.`,
-      });
-    } catch (error) {
-      console.error("Failed to update order status:", error);
-      toast({
-        title: 'Error',
-        description: 'Failed to update order status. Please try again.',
-        variant: 'destructive',
-      });
-    }
-  };
-  
-  if (isLoadingOrders) {
-    return (
-      <div className="flex justify-center items-center min-h-[calc(100vh-theme(spacing.16))]">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="ml-4 text-lg text-muted-foreground">Loading orders...</p>
-      </div>
-    );
-  }
-
+export function AppShell({ children }: { children: ReactNode }) {
   return (
-    <div className="container mx-auto py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-foreground flex items-center">
-          <ClipboardList className="mr-3 h-8 w-8 text-primary" /> Order Management
-        </h1>
-        {/* Potential future actions like "Export Orders" could go here */}
-      </div>
-
-      {orders.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {orders.map(order => (
-            <OrderListItem key={order.id} order={order} onUpdateStatus={handleUpdateStatus} />
-          ))}
-        </div>
-      ) : (
-        <Card className="text-center py-12">
-           <CardContent>
-            <AlertTriangle className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-            <h2 className="text-xl font-semibold text-foreground">No Orders Found</h2>
-            <p className="text-muted-foreground mt-2">
-              There are no orders to display yet.
-            </p>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+    <SidebarProvider defaultOpen>
+      <Sidebar>
+        <SidebarHeader className="p-4">
+          <Link href="/" className="flex items-center gap-2">
+            <Sparkles className="w-8 h-8 text-sidebar-primary" />
+            {/* The h1 now has an ID for aria-labelledby in sidebar.tsx's SheetContent */}
+            <h1 id="sidebar-title" className="text-2xl font-semibold text-sidebar-foreground">Eventide</h1>
+          </Link>
+        </SidebarHeader>
+        <SidebarContent className="p-2">
+          <SidebarMenu>
+            {mainNavItems.map((item) => (
+              <SidebarMenuItem key={item.label}>
+                <SidebarMenuButton asChild className="justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
+                  <Link href={item.href} className="flex items-center">
+                    <item.icon className="h-5 w-5 mr-3" />
+                    {item.label}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarContent>
+        <SidebarFooter className="p-4 mt-auto border-t border-sidebar-border">
+          {/* Optional: Footer content like settings or user profile */}
+        </SidebarFooter>
+      </Sidebar>
+      <SidebarInset>
+        <header className="sticky top-0 z-10 flex h-16 items-center justify-between gap-4 border-b bg-background px-4 md:px-6">
+          <div className="flex items-center gap-2">
+            <div className="md:hidden">
+              <SidebarTrigger />
+            </div>
+          </div>
+        </header>
+        <main className="flex-1 p-4 md:p-6 overflow-y-auto">
+          {children}
+        </main>
+        <Toaster />
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

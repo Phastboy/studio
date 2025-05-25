@@ -19,15 +19,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
 import type { Product } from '@/types/product';
-import { useShopData } from '@/hooks/useShopData'; // Import useShopData
+import { useShopData } from '@/hooks/useShopData'; // To select a shop
 
 const productFormSchema = z.object({
   name: z.string().min(3, 'Product name must be at least 3 characters.'),
   description: z.string().min(10, 'Description must be at least 10 characters.'),
-  price: z.coerce.number().min(0.01, 'Price must be positive.'),
-  stockQuantity: z.coerce.number().int().min(0, 'Stock quantity cannot be negative.'),
-  imageUrl: z.string().url('Image URL must be a valid URL.').optional().or(z.literal('')),
-  shopId: z.string().min(1, 'Shop assignment is required.'),
+  price: z.coerce.number().positive('Price must be a positive number.'),
+  stockQuantity: z.coerce.number().int().nonnegative('Stock quantity must be a non-negative integer.'),
+  imageUrl: z.string().url('Invalid URL format.').optional().or(z.literal('')),
+  shopId: z.string().min(1, 'Shop is required.'),
 });
 
 export type ProductFormValues = z.infer<typeof productFormSchema>;
@@ -39,13 +39,13 @@ interface ProductFormProps {
   submitButtonText?: string;
 }
 
-export function ProductForm({ 
-  onSubmit, 
-  initialData, 
-  isLoading = false, 
-  submitButtonText = initialData ? "Update Product" : "Create Product" 
+export function ProductForm({
+  onSubmit,
+  initialData,
+  isLoading = false,
+  submitButtonText = initialData ? 'Update Product' : 'Create Product',
 }: ProductFormProps) {
-  const { shops, isLoading: isLoadingShops } = useShopData(); // Get shops for dropdown
+  const { shops, isLoading: isLoadingShops } = useShopData();
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
@@ -58,7 +58,7 @@ export function ProductForm({
       shopId: initialData?.shopId || '',
     },
   });
-  
+
   const onFormSubmit = (data: ProductFormValues) => {
     onSubmit(data);
   };
@@ -68,42 +68,12 @@ export function ProductForm({
       <form onSubmit={form.handleSubmit(onFormSubmit)} className="space-y-8">
         <FormField
           control={form.control}
-          name="shopId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Shop</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoadingShops || shops.length === 0}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder={isLoadingShops ? "Loading shops..." : "Select a shop for this product"} />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {shops.length === 0 && !isLoadingShops ? (
-                    <SelectItem value="no-shops" disabled>No shops available. Create a shop first.</SelectItem>
-                  ) : (
-                    shops.map(shop => (
-                      <SelectItem key={shop.id} value={shop.id}>{shop.name}</SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
-              <FormDescription>
-                Assign this product to one of your shops.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Product Name</FormLabel>
               <FormControl>
-                <Input placeholder="e.g., Eventide T-Shirt" {...field} />
+                <Input placeholder="e.g., Awesome T-Shirt" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -114,7 +84,7 @@ export function ProductForm({
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel>Product Description</FormLabel>
               <FormControl>
                 <Textarea placeholder="Describe the product..." {...field} />
               </FormControl>
@@ -128,9 +98,9 @@ export function ProductForm({
             name="price"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Price ($)</FormLabel>
+                <FormLabel>Price</FormLabel>
                 <FormControl>
-                  <Input type="number" step="0.01" placeholder="e.g., 25.99" {...field} />
+                  <Input type="number" step="0.01" placeholder="e.g., 19.99" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -157,16 +127,41 @@ export function ProductForm({
             <FormItem>
               <FormLabel>Image URL (Optional)</FormLabel>
               <FormControl>
-                <Input placeholder="https://placehold.co/300x300.png" {...field} />
+                <Input placeholder="https://example.com/image.png" {...field} />
               </FormControl>
-              <FormDescription>
-                Provide a direct link to the product image. Use placeholder if none.
-              </FormDescription>
+              <FormDescription>Enter a URL for the product image. Use https://placehold.co if needed.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={isLoading || isLoadingShops} className="w-full md:w-auto">
+        <FormField
+          control={form.control}
+          name="shopId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Shop</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoadingShops || shops.length === 0}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder={isLoadingShops ? "Loading shops..." : (shops.length === 0 ? "No shops available - create one first" : "Select a shop")} />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {!isLoadingShops && shops.map(shop => (
+                    <SelectItem key={shop.id} value={shop.id}>{shop.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {shops.length === 0 && !isLoadingShops && (
+                <FormDescription className="text-destructive">
+                  No shops available. Please create a shop first in 'Manage Shops' before adding products.
+                </FormDescription>
+              )}
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit" disabled={isLoading || isLoadingShops || (shops.length === 0 && !initialData) } className="w-full md:w-auto">
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           {submitButtonText}
         </Button>

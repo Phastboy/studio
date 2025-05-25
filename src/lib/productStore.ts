@@ -40,19 +40,26 @@ export const deleteProductFromStorage = (productId: string): Product[] => {
   return products;
 };
 
-// Helper to update stock, typically called when an order is placed
-export const updateStockForProductInStorage = (productId: string, quantityChange: number): Product | null => {
+export const updateStockForProductInStorage = (productId: string, quantityChange: number): Product | undefined => {
   const products = getProductsFromStorage();
-  let updatedProduct: Product | null = null;
-  const updatedProducts = products.map(p => {
-    if (p.id === productId) {
-      updatedProduct = { ...p, stockQuantity: p.stockQuantity - quantityChange };
-      return updatedProduct;
-    }
-    return p;
-  });
-  if (updatedProduct) {
-    saveProductsToStorage(updatedProducts);
+  const productIndex = products.findIndex(p => p.id === productId);
+
+  if (productIndex === -1) {
+    console.error(`Product with ID ${productId} not found for stock update.`);
+    return undefined;
   }
+
+  const product = products[productIndex];
+  const newStock = product.stockQuantity - quantityChange;
+
+  if (newStock < 0) {
+    console.warn(`Stock for product ${product.name} cannot go below zero. Stock unchanged.`);
+    // Optionally throw an error or handle as per business logic
+    return product; 
+  }
+
+  const updatedProduct = { ...product, stockQuantity: newStock };
+  products[productIndex] = updatedProduct;
+  saveProductsToStorage(products);
   return updatedProduct;
 };
