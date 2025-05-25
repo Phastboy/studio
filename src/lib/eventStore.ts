@@ -7,21 +7,28 @@ const SAVED_EVENTS_STORAGE_KEY = 'eventide_saved_event_ids';
 
 export const getEventsFromStorage = (): Event[] => {
   if (typeof window === 'undefined') return [];
-  const storedEvents = localStorage.getItem(EVENTS_STORAGE_KEY);
-  if (storedEvents) {
+  const storedEventsString = localStorage.getItem(EVENTS_STORAGE_KEY);
+  let events: Event[] = [];
+
+  if (storedEventsString) {
     try {
-      return JSON.parse(storedEvents);
+      events = JSON.parse(storedEventsString);
     } catch (e) {
-      console.error("Failed to parse events from storage, returning empty.", e);
+      console.error("Failed to parse events from storage, will re-initialize.", e);
+      // events remains []
       localStorage.removeItem(EVENTS_STORAGE_KEY); // Clear corrupted data
-      saveEventsToStorage(mockEvents); // Initialize with mock data
-      return mockEvents;
     }
-  } else {
-    // No events in storage, initialize with mock data
-    saveEventsToStorage(mockEvents);
-    return mockEvents;
   }
+
+  // If events array is empty after attempting to load (either not found, parsing failed, or was an empty array)
+  // and mockEvents has items, then initialize.
+  if (events.length === 0 && mockEvents.length > 0) {
+    console.log("Local storage for events is empty or invalid, initializing with mock events.");
+    saveEventsToStorage(mockEvents);
+    return [...mockEvents]; // Return a copy
+  }
+  
+  return events;
 };
 
 export const saveEventsToStorage = (events: Event[]): void => {
@@ -31,7 +38,9 @@ export const saveEventsToStorage = (events: Event[]): void => {
 
 export const addEventToStorage = (event: Event): Event[] => {
   const events = getEventsFromStorage();
-  const updatedEvents = [event, ...events];
+  // Ensure no duplicates if mock data was just loaded and then an add is attempted with a mock id
+  const eventExists = events.some(e => e.id === event.id);
+  const updatedEvents = eventExists ? events : [event, ...events];
   saveEventsToStorage(updatedEvents);
   return updatedEvents;
 };

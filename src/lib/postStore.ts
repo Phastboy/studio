@@ -7,26 +7,33 @@ const LIKED_POST_IDS_STORAGE_KEY = 'eventide_liked_post_ids';
 
 export const getPostsFromStorage = (): Post[] => {
   if (typeof window === 'undefined') return [];
-  const storedPosts = localStorage.getItem(POSTS_STORAGE_KEY);
-  if (storedPosts) {
+  const storedPostsString = localStorage.getItem(POSTS_STORAGE_KEY);
+  let posts: Post[] = [];
+
+  if (storedPostsString) {
     try {
-      // Ensure all posts have likeCount, defaulting to 0 if missing
-      return JSON.parse(storedPosts).map((post: any) => ({
+      const parsedPosts = JSON.parse(storedPostsString);
+      // Ensure all posts have likeCount
+      posts = parsedPosts.map((post: any) => ({
         ...post,
         likeCount: post.likeCount === undefined ? 0 : post.likeCount,
       }));
     } catch (e) {
-      console.error("Failed to parse posts from storage, initializing with mock.", e);
-      localStorage.removeItem(POSTS_STORAGE_KEY); 
-      const postsWithLikes = mockPosts.map(post => ({ ...post, likeCount: post.likeCount || 0 }));
-      savePostsToStorage(postsWithLikes); 
-      return postsWithLikes;
+      console.error("Failed to parse posts from storage, will re-initialize.", e);
+      // posts remains []
+      localStorage.removeItem(POSTS_STORAGE_KEY); // Clear corrupted data
     }
-  } else {
+  }
+
+  if (posts.length === 0 && mockPosts.length > 0) {
+    console.log("Local storage for posts is empty or invalid, initializing with mock posts.");
+    // Ensure mock posts also have likeCount initialized if not present in mockData definition
     const postsWithLikes = mockPosts.map(post => ({ ...post, likeCount: post.likeCount || 0 }));
     savePostsToStorage(postsWithLikes);
-    return postsWithLikes;
+    return [...postsWithLikes]; // Return a copy
   }
+
+  return posts;
 };
 
 export const savePostsToStorage = (posts: Post[]): void => {
@@ -38,9 +45,11 @@ export const addPostToStorage = (post: Omit<Post, 'id' | 'createdAt' | 'likeCoun
   const posts = getPostsFromStorage();
   const newPostWithLike: Post = {
     ...post,
-    likeCount: 0, // New posts start with 0 likes
+    likeCount: 0, 
   };
-  const updatedPosts = [newPostWithLike, ...posts];
+  // Ensure no duplicates if mock data was just loaded and then an add is attempted with a mock id
+  const postExists = posts.some(p => p.id === newPostWithLike.id);
+  const updatedPosts = postExists ? posts : [newPostWithLike, ...posts];
   savePostsToStorage(updatedPosts);
   return updatedPosts;
 };
@@ -60,6 +69,7 @@ export const getLikedPostIdsFromStorage = (): Set<string> => {
     return storedLikedIds ? new Set(JSON.parse(storedLikedIds)) : new Set();
   } catch (e) {
     console.error("Failed to parse liked post IDs from storage", e);
+    localStorage.removeItem(LIKED_POST_IDS_STORAGE_KEY); // Clear corrupted data
     return new Set();
   }
 };

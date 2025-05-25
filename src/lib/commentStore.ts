@@ -6,21 +6,26 @@ const COMMENTS_STORAGE_KEY = 'eventide_comments';
 
 export const getCommentsFromStorage = (): Comment[] => {
   if (typeof window === 'undefined') return [];
-  const storedComments = localStorage.getItem(COMMENTS_STORAGE_KEY);
-  if (storedComments) {
+  const storedCommentsString = localStorage.getItem(COMMENTS_STORAGE_KEY);
+  let comments: Comment[] = [];
+
+  if (storedCommentsString) {
     try {
-      return JSON.parse(storedComments);
+      comments = JSON.parse(storedCommentsString);
     } catch (e) {
-      console.error("Failed to parse comments from storage, initializing with mock.", e);
-      localStorage.removeItem(COMMENTS_STORAGE_KEY);
-      saveCommentsToStorage(mockComments); // Initialize with mock data on error
-      return mockComments;
+      console.error("Failed to parse comments from storage, will re-initialize.", e);
+      // comments remains []
+      localStorage.removeItem(COMMENTS_STORAGE_KEY); // Clear corrupted data
     }
-  } else {
-    // No comments in storage, initialize with mock data
-    saveCommentsToStorage(mockComments);
-    return mockComments;
   }
+
+  if (comments.length === 0 && mockComments.length > 0) {
+    console.log("Local storage for comments is empty or invalid, initializing with mock comments.");
+    saveCommentsToStorage(mockComments);
+    return [...mockComments]; // Return a copy
+  }
+  
+  return comments;
 };
 
 export const saveCommentsToStorage = (comments: Comment[]): void => {
@@ -30,7 +35,9 @@ export const saveCommentsToStorage = (comments: Comment[]): void => {
 
 export const addCommentToStorage = (comment: Comment): Comment[] => {
   const comments = getCommentsFromStorage();
-  const updatedComments = [...comments, comment].sort((a,b) => a.createdAt - b.createdAt); // Sort by oldest first
+  // Ensure no duplicates if mock data was just loaded and then an add is attempted with a mock id
+  const commentExists = comments.some(c => c.id === comment.id);
+  const updatedComments = commentExists ? comments : [...comments, comment].sort((a,b) => a.createdAt - b.createdAt); 
   saveCommentsToStorage(updatedComments);
   return updatedComments;
 };
@@ -49,7 +56,7 @@ export const deleteCommentFromStorage = (commentId: string): Comment[] => {
         changed = true;
       }
     });
-    if (commentsToDelete.size === initialSize && !changed) break; // break if no new replies found in an iteration
+    if (commentsToDelete.size === initialSize && !changed) break; 
   }
   
   comments = comments.filter(comment => !commentsToDelete.has(comment.id));
