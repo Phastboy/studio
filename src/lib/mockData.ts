@@ -110,24 +110,28 @@ export const mockPosts: Post[] = [
     author: mockUsers[0].displayName, // Alice Wonderland
     content: 'So excited for the Indie Music Fest next week! Grabbed my tickets. Who else is going? 🎶 #IndieMusic #LiveConcert',
     createdAt: Date.now() - 1000 * 60 * 30, // 30 minutes ago
+    likeCount: 15,
   },
   {
     id: 'post-2',
     author: mockUsers[1].displayName, // Bob The Builder
     content: 'The Tech Innovators Summit looks amazing. The speaker lineup is incredible. Definitely registering for this one. #Tech #Innovation',
     createdAt: Date.now() - 1000 * 60 * 60 * 2, // 2 hours ago
+    likeCount: 8,
   },
   {
     id: 'post-3',
     author: mockUsers[2].displayName, // Charlie Brown
     content: 'Just visited the new cafe downtown. Great coffee and pastries! Perfect spot for a weekend brunch. ☕️🥐',
     createdAt: Date.now() - 1000 * 60 * 60 * 24 * 1, // 1 day ago
+    likeCount: 22,
   },
   {
     id: 'post-4',
     author: 'Guest User',
     content: 'Anyone know if the Food Truck Rally is pet-friendly? Thinking of bringing my dog. 🐕',
     createdAt: Date.now() - 1000 * 60 * 60 * 5, // 5 hours ago
+    likeCount: 3,
   },
 ];
 
