@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { Toaster } from '@/components/ui/toaster';
 // import { AuthButton } from '@/components/auth/AuthButton'; // Auth rolled back
+// Removed SheetTitle import as it's no longer used directly here in a way that was causing issues.
 
 interface NavItem {
   href: string;
@@ -56,7 +57,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         <SidebarHeader className="p-4">
           <Link href="/" className="flex items-center gap-2">
             <Sparkles className="w-8 h-8 text-sidebar-primary" />
-            <h1 className="text-2xl font-semibold text-sidebar-foreground">Eventide</h1>
+            {/* The h1 now has an ID for aria-labelledby */}
+            <h1 id="sidebar-title" className="text-2xl font-semibold text-sidebar-foreground">Eventide</h1>
           </Link>
         </SidebarHeader>
         <SidebarContent className="p-2">
