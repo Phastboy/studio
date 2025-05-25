@@ -1,12 +1,26 @@
 
 import type { Post } from '@/types/post';
+import { mockPosts } from '@/lib/mockData'; // Import mock data
 
 const POSTS_STORAGE_KEY = 'eventide_posts';
 
 export const getPostsFromStorage = (): Post[] => {
   if (typeof window === 'undefined') return [];
   const storedPosts = localStorage.getItem(POSTS_STORAGE_KEY);
-  return storedPosts ? JSON.parse(storedPosts) : [];
+  if (storedPosts) {
+    try {
+      return JSON.parse(storedPosts);
+    } catch (e) {
+      console.error("Failed to parse posts from storage, returning empty.", e);
+      localStorage.removeItem(POSTS_STORAGE_KEY); // Clear corrupted data
+      savePostsToStorage(mockPosts); // Initialize with mock data
+      return mockPosts;
+    }
+  } else {
+    // No posts in storage, initialize with mock data
+    savePostsToStorage(mockPosts);
+    return mockPosts;
+  }
 };
 
 export const savePostsToStorage = (posts: Post[]): void => {

@@ -1,4 +1,6 @@
+
 import type { Event } from '@/types/event';
+import { mockEvents } from '@/lib/mockData'; // Import mock data
 
 const EVENTS_STORAGE_KEY = 'eventide_events';
 const SAVED_EVENTS_STORAGE_KEY = 'eventide_saved_event_ids';
@@ -6,7 +8,20 @@ const SAVED_EVENTS_STORAGE_KEY = 'eventide_saved_event_ids';
 export const getEventsFromStorage = (): Event[] => {
   if (typeof window === 'undefined') return [];
   const storedEvents = localStorage.getItem(EVENTS_STORAGE_KEY);
-  return storedEvents ? JSON.parse(storedEvents) : [];
+  if (storedEvents) {
+    try {
+      return JSON.parse(storedEvents);
+    } catch (e) {
+      console.error("Failed to parse events from storage, returning empty.", e);
+      localStorage.removeItem(EVENTS_STORAGE_KEY); // Clear corrupted data
+      saveEventsToStorage(mockEvents); // Initialize with mock data
+      return mockEvents;
+    }
+  } else {
+    // No events in storage, initialize with mock data
+    saveEventsToStorage(mockEvents);
+    return mockEvents;
+  }
 };
 
 export const saveEventsToStorage = (events: Event[]): void => {
@@ -39,7 +54,13 @@ export const deleteEventFromStorage = (eventId: string): Event[] => {
 export const getSavedEventIdsFromStorage = (): string[] => {
   if (typeof window === 'undefined') return [];
   const storedIds = localStorage.getItem(SAVED_EVENTS_STORAGE_KEY);
-  return storedIds ? JSON.parse(storedIds) : [];
+  try {
+    return storedIds ? JSON.parse(storedIds) : [];
+  } catch (e) {
+    console.error("Failed to parse saved event IDs from storage, returning empty.", e);
+    localStorage.removeItem(SAVED_EVENTS_STORAGE_KEY); // Clear corrupted data
+    return [];
+  }
 };
 
 export const saveSavedEventIdsToStorage = (ids: string[]): void => {
