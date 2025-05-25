@@ -8,10 +8,19 @@ import {
   SidebarFooter,
   SidebarInset,
   SidebarTrigger,
+  SidebarSeparator,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { CalendarDays, CalendarPlus, CalendarCheck, Home, Settings, Sparkles, MessageSquare } from 'lucide-react';
+import { 
+  CalendarDays, CalendarPlus, CalendarCheck, Home, Settings, Sparkles, MessageSquare,
+  ShoppingBag, ShoppingCart, Package, ClipboardList, Users 
+} from 'lucide-react';
 import { Toaster } from '@/components/ui/toaster';
 
 interface NavItem {
@@ -20,11 +29,22 @@ interface NavItem {
   icon: React.ElementType;
 }
 
-const navItems: NavItem[] = [
+const mainNavItems: NavItem[] = [
   { href: '/', label: 'Home Feed', icon: Home },
   { href: '/events', label: 'All Events', icon: CalendarDays },
   { href: '/create', label: 'Create Event', icon: CalendarPlus },
   { href: '/calendar', label: 'My Calendar', icon: CalendarCheck },
+];
+
+const shopNavItems: NavItem[] = [
+  { href: '/shop', label: 'Shop', icon: ShoppingBag },
+  { href: '/cart', label: 'My Cart', icon: ShoppingCart },
+];
+
+const adminNavItems: NavItem[] = [
+  { href: '/admin/products', label: 'Inventory', icon: Package },
+  { href: '/admin/orders', label: 'Orders', icon: ClipboardList },
+  // { href: '/admin/users', label: 'Users', icon: Users }, // Example for future
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -33,30 +53,60 @@ export function AppShell({ children }: { children: ReactNode }) {
       <Sidebar>
         <SidebarHeader className="p-4">
           <Link href="/" className="flex items-center gap-2">
-            <Sparkles className="w-8 h-8 text-primary" />
-            <h1 className="text-2xl font-semibold text-foreground">Eventide</h1>
+            <Sparkles className="w-8 h-8 text-sidebar-primary" />
+            <h1 className="text-2xl font-semibold text-sidebar-foreground">Eventide</h1>
           </Link>
         </SidebarHeader>
         <SidebarContent className="p-2">
-          <nav className="flex flex-col gap-1">
-            {navItems.map((item) => (
-              <Button
-                key={item.label}
-                variant="ghost"
-                className="justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                asChild
-              >
-                <Link href={item.href} className="flex items-center gap-3 rounded-lg px-3 py-2">
-                  <item.icon className="h-5 w-5" />
-                  {item.label}
-                </Link>
-              </Button>
+          <SidebarMenu>
+            {mainNavItems.map((item) => (
+              <SidebarMenuItem key={item.label}>
+                <SidebarMenuButton asChild className="justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
+                  <Link href={item.href} className="flex items-center">
+                    <item.icon className="h-5 w-5 mr-3" />
+                    {item.label}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             ))}
-          </nav>
+          </SidebarMenu>
+          
+          <SidebarSeparator className="my-4" />
+          
+          <SidebarMenu>
+             <SidebarGroupLabel className="text-xs font-semibold text-sidebar-foreground/70 px-2">Shop</SidebarGroupLabel>
+            {shopNavItems.map((item) => (
+              <SidebarMenuItem key={item.label}>
+                 <SidebarMenuButton asChild className="justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
+                  <Link href={item.href} className="flex items-center">
+                    <item.icon className="h-5 w-5 mr-3" />
+                    {item.label}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+
+          <SidebarSeparator className="my-4" />
+
+          <SidebarMenu>
+            <SidebarGroupLabel className="text-xs font-semibold text-sidebar-foreground/70 px-2">Admin</SidebarGroupLabel>
+            {adminNavItems.map((item) => (
+              <SidebarMenuItem key={item.label}>
+                 <SidebarMenuButton asChild className="justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
+                  <Link href={item.href} className="flex items-center">
+                    <item.icon className="h-5 w-5 mr-3" />
+                    {item.label}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+
         </SidebarContent>
-        <SidebarFooter className="p-4">
+        <SidebarFooter className="p-4 mt-auto border-t border-sidebar-border">
           {/* Optional: Footer content like settings or user profile */}
-          {/* <Button variant="ghost" className="justify-start">
+          {/* <Button variant="ghost" className="justify-start w-full">
             <Settings className="mr-2 h-5 w-5" />
             Settings
           </Button> */}
@@ -71,7 +121,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             {/* Placeholder for potential breadcrumbs or page title */}
           </div>
         </header>
-        <main className="flex-1 p-4 md:p-6">
+        <main className="flex-1 p-4 md:p-6 overflow-y-auto">
           {children}
         </main>
         <Toaster />
