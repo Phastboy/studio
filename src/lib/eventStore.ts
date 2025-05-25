@@ -22,7 +22,7 @@ export const getEventsFromStorage = (): Event[] => {
 
   // If events array is empty after attempting to load (either not found, parsing failed, or was an empty array)
   // and mockEvents has items, then initialize.
-  if (events.length === 0 && mockEvents.length > 0) {
+  if (!storedEventsString && mockEvents.length > 0) { // Reverted: check !storedEventsString instead of events.length === 0
     console.log("Local storage for events is empty or invalid, initializing with mock events.");
     saveEventsToStorage(mockEvents);
     return [...mockEvents]; // Return a copy
@@ -93,3 +93,4 @@ export const removeSavedEventIdFromStorage = (eventId: string): string[] => {
   saveSavedEventIdsToStorage(ids);
   return ids;
 };
+

@@ -25,7 +25,7 @@ export const getPostsFromStorage = (): Post[] => {
     }
   }
 
-  if (posts.length === 0 && mockPosts.length > 0) {
+  if (!storedPostsString && mockPosts.length > 0) { // Reverted: check !storedPostsString
     console.log("Local storage for posts is empty or invalid, initializing with mock posts.");
     // Ensure mock posts also have likeCount initialized if not present in mockData definition
     const postsWithLikes = mockPosts.map(post => ({ ...post, likeCount: post.likeCount || 0 }));
@@ -78,3 +78,4 @@ export const saveLikedPostIdsToStorage = (ids: Set<string>): void => {
   if (typeof window === 'undefined') return;
   localStorage.setItem(LIKED_POST_IDS_STORAGE_KEY, JSON.stringify(Array.from(ids)));
 };
+

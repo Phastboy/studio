@@ -19,7 +19,7 @@ export const getCommentsFromStorage = (): Comment[] => {
     }
   }
 
-  if (comments.length === 0 && mockComments.length > 0) {
+  if (!storedCommentsString && mockComments.length > 0) { // Reverted: check !storedCommentsString
     console.log("Local storage for comments is empty or invalid, initializing with mock comments.");
     saveCommentsToStorage(mockComments);
     return [...mockComments]; // Return a copy
@@ -68,3 +68,4 @@ export const getCommentsForPostFromStorage = (postId: string): Comment[] => {
   const allComments = getCommentsFromStorage();
   return allComments.filter(comment => comment.postId === postId);
 };
+
