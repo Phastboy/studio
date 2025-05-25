@@ -2,6 +2,7 @@
 import type { Event, EventLink } from '@/types/event';
 import type { Post } from '@/types/post';
 import type { User } from '@/types/user';
+import type { Comment } from '@/types/comment';
 import { format, subDays, addDays } from 'date-fns';
 
 // --- Mock Users (Conceptual) ---
@@ -127,5 +128,49 @@ export const mockPosts: Post[] = [
     author: 'Guest User',
     content: 'Anyone know if the Food Truck Rally is pet-friendly? Thinking of bringing my dog. 🐕',
     createdAt: Date.now() - 1000 * 60 * 60 * 5, // 5 hours ago
+  },
+];
+
+// --- Mock Comments ---
+export const mockComments: Comment[] = [
+  {
+    id: 'comment-1-1',
+    postId: 'post-1', // Belongs to Alice's Indie Music Fest post
+    parentId: null,
+    author: mockUsers[1].displayName, // Bob
+    content: 'I\'m going! Heard the lineup is sick this year.',
+    createdAt: Date.now() - 1000 * 60 * 25, // 25 minutes ago
+  },
+  {
+    id: 'comment-1-2',
+    postId: 'post-1',
+    parentId: 'comment-1-1', // Reply to Bob's comment
+    author: mockUsers[0].displayName, // Alice
+    content: 'Awesome! We should meet up.',
+    createdAt: Date.now() - 1000 * 60 * 20, // 20 minutes ago
+  },
+  {
+    id: 'comment-1-3',
+    postId: 'post-1',
+    parentId: null,
+    author: mockUsers[2].displayName, // Charlie
+    content: 'Wish I could make it, sounds fun!',
+    createdAt: Date.now() - 1000 * 60 * 15, // 15 minutes ago
+  },
+  {
+    id: 'comment-1-4',
+    postId: 'post-1',
+    parentId: 'comment-1-2', // Reply to Alice's reply
+    author: mockUsers[1].displayName, // Bob
+    content: 'For sure! I\'ll be near the main stage around 7pm.',
+    createdAt: Date.now() - 1000 * 60 * 10, // 10 minutes ago
+  },
+  {
+    id: 'comment-2-1',
+    postId: 'post-2', // Belongs to Bob's Tech Summit post
+    parentId: null,
+    author: mockUsers[0].displayName, // Alice
+    content: 'Which workshop are you most excited about?',
+    createdAt: Date.now() - 1000 * 60 * 60 * 1, // 1 hour ago
   },
 ];
