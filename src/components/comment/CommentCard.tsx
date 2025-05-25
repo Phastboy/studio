@@ -11,6 +11,7 @@ import { useCommentData } from '@/hooks/useCommentData';
 import { useToast } from '@/hooks/use-toast';
 import { CommentForm } from './CommentForm';
 import { CommentsList } from './CommentsList'; // For rendering replies
+import { cn } from '@/lib/utils'; // Added import for cn
 
 interface CommentCardProps {
   comment: Comment;
