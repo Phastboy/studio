@@ -9,6 +9,7 @@ import {
   deletePostFromStorage,
   getLikedPostIdsFromStorage,
   saveLikedPostIdsToStorage,
+  savePostsToStorage, // Added this import
 } from '@/lib/postStore';
 
 export function usePostData() {
